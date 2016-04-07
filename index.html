@@ -12,11 +12,15 @@
       window.addEventListener('load', init, false);
 
       function init(){
-        console.log("hello world");
+        var canvas = document.getElementById('mycanvas');
+        var ctx = canvas.getContext('2d');
+
+        ctx.strokeRect(50, 100, 150, 150);
       }
     </script>
   </head>
   <body>
     <h1>Hello World</h1>
+    <canvas id="mycanvas" width=700px height=500px></canvas>
   </body>
 </html>
