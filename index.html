@@ -15,9 +15,40 @@
         var canvas = document.getElementById('mycanvas');
         var ctx = canvas.getContext('2d');
 
-        ctx.strokeRect(50, 100, 150, 150);
+        var paddleWidth = 30;
+        var paddleHeight = 100;
+        var totalWidth = 700;
+        var totalHeight = 500;
+
+        var ballSize = 30;
+
+        // player one's paddle
+        ctx.strokeRect(0,
+            totalHeight / 2,
+            paddleWidth,
+            paddleHeight);
+
+        // player two's paddle
+        ctx.strokeRect(totalWidth - paddleWidth,
+            totalHeight / 2,
+            paddleWidth,
+            paddleHeight);
+
+        // "ball"
+        ctx.strokeRect(totalWidth / 2,
+            totalHeight / 2,
+            ballSize,
+            ballSize);
       }
     </script>
+  <style>
+    body {
+      background-color: #cccccc;
+    }
+    canvas {
+      background-color: white;
+    }
+  </style>
   </head>
   <body>
     <h1>Hello World</h1>
