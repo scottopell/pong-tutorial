@@ -3,6 +3,18 @@
     <meta charset="utf-8">
     <title>Pong</title>
     <meta name="description" content="Pong Game">
+    <script>
+      // this is the standard way to add an "Event Listener"
+      // "Event Listeners" are a way to tell the browser, "Hey, run this piece
+      // of code whenever thing X happens"
+      // in this case, when everything is 'load'ed, we want to run the function
+      // 'init', which we define below.
+      window.addEventListener('load', init, false);
+
+      function init(){
+        console.log("hello world");
+      }
+    </script>
   </head>
   <body>
     <h1>Hello World</h1>
