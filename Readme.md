@@ -7,6 +7,7 @@ This assumes some knowledge of html, css, and javascript. If you've done one or 
 Its tradition to start every project off with a basic "hello world." I find this really useful personally because it ensures that I know exactly how to run the thing that I'm creating.
 
 So that's the first step. You can see the code for it [here](https://github.com/scottopell/pong-tutorial/blob/07cbeff4dc7b19518ec54ca0d07eec51dbebe0db/index.html). And this doesn't do anything exciting, if you open this file in your browser, then you'll just see this:
+
 ![hello world screenshot](./ss/hello_world.png)
 
 ## Step 2: Best Practices
@@ -144,6 +145,9 @@ So, putting all this together, we can draw 3 rectangles to get the above picture
 Play around with this code to try to move the ball around a bit!
 
 Current code can be found [here](https://github.com/scottopell/pong-tutorial/commit/94dfd3696e3cebd19bb24ea78f5cd6782c432865)
+
+## Step 6: Defining Logic
+
 
 
 
