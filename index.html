@@ -21,7 +21,8 @@
       var ballSize = 30;
       var ball_x = totalWidth / 2;
       var ball_y = totalHeight / 2;
-      var shouldMove = true;
+      var ball_x_velocity = 1;
+      var ball_y_velocity = 1;
 
       function init(){
         canvas = document.getElementById('mycanvas');
@@ -34,26 +35,24 @@
         drawStuff();
 
         ballCollisionHandler(ball_x, ball_y);
-        if (shouldMove){
-          ball_x++;
-          ball_y++;
-        }
+        ball_x += ball_x_velocity;
+        ball_y += ball_y_velocity;
         window.setTimeout(mainLoop, 16);
       }
 
       function ballCollisionHandler(x, y){
         if (x + ballSize > canvas.width){
-          // switch the ball to travel upwards instead of downwards
-          shouldMove = false;
-        } else if (x < 0){
-          // switch the ball to travel downwards instead of upwards
-          shouldMove = false;
-        } else if (y + ballSize > canvas.height){
           // switch the ball to travel left instead of right
-          shouldMove = false;
-        } else if (y < 0){
+          ball_x_velocity = -1;
+        } else if (x < 0){
           // switch the ball to travel right instead of left
-          shouldMove = false;
+          ball_x_velocity = 1;
+        } else if (y + ballSize > canvas.height){
+          // switch the ball to travel upwards instead of downwards
+          ball_y_velocity = -1;
+        } else if (y < 0){
+          // switch the ball to travel downwards instead of upwards
+          ball_y_velocity = 1;
         }
       }
 
