@@ -291,6 +291,7 @@ That looks better. Now we can add in some code that will tell the ball what to d
 
 Awesome! For the next stage, we'll talk about how to make the ball "bounce" off the edges!
 
+Code for this stage found [here!](https://github.com/scottopell/pong-tutorial/blob/291940878184849fcb6cfb25f13c9dd40adb2538/index.html#L33)
 
 
 
