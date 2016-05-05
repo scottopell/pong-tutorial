@@ -146,13 +146,150 @@ Play around with this code to try to move the ball around a bit!
 
 Current code can be found [here](https://github.com/scottopell/pong-tutorial/commit/94dfd3696e3cebd19bb24ea78f5cd6782c432865)
 
-## Step 6: Defining Logic
+## Step 6: Making Things Move
+Great, so we know how to draw some rectangles. But this is basically just what we can do in photoshop or mspaint or snapchat.
+
+Now we want to make these things move around. The idea here is the same as flipbooks, or movies, each time you want to move an object, you redraw everything, but move that thing just a little bit.
+
+So the general idea in code looks like this
+
+```
+square.x_pos = 0;
+square.y_pos = 0;
+
+while (true) {
+  draw(square);
+  square.x_pos++;
+  square.y_pos++;
+  erase_canvas();
+}
+```
+
+What this will do is make the `square` move one pixel to the right and one pixel down every time the loop runs.
+
+Now lets see if we can make our `ball` move using this same principal.
+
+Unfortunately, in the browser, we can't just use an infinite while loop as we did in the code above. If you do, then the browser will hang forever because your code will be running forever!
+
+So, the solution to this to just schedule our code to run every **16 milliseconds**. Where does this number come from? A standard _frame rate_ is 60 frames per second (fps.) At this frame rate, things look pretty natural and there's not much need to go faster.
+
+Javascript includes a way to tell the browser "run this code in N milliseconds."
+
+```js
+window.setTimeout(mainLoop, 16);
+```
+
+So to make this last forever, we'll have to do it ourselves:
+
+```js
+window.setTimeout(mainLoop, 16);
+function mainLoop(){
+    drawStuff()
+    window.setTimeout(mainLoop, 16);
+}
+```
+
+So, if we put all this together and put it into code, we get something like this:
+
+```js
+function init(){
+  canvas = document.getElementById('mycanvas');
+  ctx = canvas.getContext('2d');
+
+  window.setTimeout(mainLoop, 16);
+}
+
+function mainLoop(){
+  drawStuff();
+  ball_x++;
+  ball_y++;
+  window.setTimeout(mainLoop, 16);
+}
+
+function drawStuff(){
+  // player one's paddle
+  draw_paddle(ctx,
+      0,
+      totalHeight / 2,
+      paddleWidth,
+      paddleHeight);
+
+  // player two's paddle
+  draw_paddle(ctx,
+      totalWidth - paddleWidth,
+      totalHeight / 2,
+      paddleWidth,
+      paddleHeight);
+
+  draw_ball(ctx, ball_x, ball_y, ballSize);
+}
+
+function draw_paddle(ctx, x, y, width, height){
+  ctx.strokeRect(x, y, width, height);
+}
+
+function draw_ball(ctx, x, y, size){
+  ctx.strokeRect(x, y, size, size);
+}
+```
+
+This gives you a result that looks like this:
+
+![pong-ball-move](./ss/pong_ball_move.gif)
+
+Almost what we want. I left out a crucial step. I didn't clear the canvas before drawing the box in its new position.
+
+If I clear the canvas, then I get exactly what we're looking for!
+
+![pong-ball-move](./ss/pong_ball_move_good.gif)
 
 
+## Step 7: Making things bounce
+So, now that we know the basic idea behind moving items on the screen, lets step back for a second and see if we can figure out a way to make the ball bounce off the edges of the screen.
+
+Conceptually, what we want to do here, is see when the position of the ball goes below the bottom edge, to the right of the right edge, to the left of the left edge, or above the top edge.
+
+So given some point `x,y` as the coordinate, we can write a function that looks like this:
+
+```js
+function ballCollisionHandler(x, y){
+  if (x > canvas.width){
+    // switch the ball to travel upwards instead of downwards
+  } else if (x < 0){
+    // switch the ball to travel downwards instead of upwards
+  } else if (y > canvas.height){
+    // switch the ball to travel left instead of right
+  } else if (y < 0){
+    // switch the ball to travel right instead of left
+  }
+}
+```
 
 
+Now as you might have noticed, this assumes the ball is a single `x,y` point, but it has width and height!
+
+So lets take that into account, its not hard!
+
+```js
+function ballCollisionHandler(x, y){
+  if (x + ballSize > canvas.width){
+    // switch the ball to travel upwards instead of downwards
+  } else if (x < 0){
+    // switch the ball to travel downwards instead of upwards
+  } else if (y + ballSize > canvas.height){
+    // switch the ball to travel left instead of right
+  } else if (y < 0){
+    // switch the ball to travel right instead of left
+  }
+}
+```
+
+That looks better. Now we can add in some code that will tell the ball what to do when it reaches an edge. For now, lets just let tell it to stop moving to make sure it works.
+
+![pong-ball-collision-stop](./ss/pong_ball_collision_stop.gif)
 
 
+Awesome! For the next stage, we'll talk about how to make the ball "bounce" off the edges!
 
 
 

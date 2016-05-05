@@ -11,35 +11,84 @@
       // 'init', which we define below.
       window.addEventListener('load', init, false);
 
+      var canvas, ctx;
+
+      var paddleWidth = 30;
+      var paddleHeight = 100;
+      var totalWidth = 700;
+      var totalHeight = 500;
+
+      var ballSize = 30;
+      var ball_x = totalWidth / 2;
+      var ball_y = totalHeight / 2;
+      var shouldMove = true;
+
       function init(){
-        var canvas = document.getElementById('mycanvas');
-        var ctx = canvas.getContext('2d');
+        canvas = document.getElementById('mycanvas');
+        ctx = canvas.getContext('2d');
 
-        var paddleWidth = 30;
-        var paddleHeight = 100;
-        var totalWidth = 700;
-        var totalHeight = 500;
+        window.setTimeout(mainLoop, 16);
+      }
 
-        var ballSize = 30;
+      function mainLoop(){
+        drawStuff();
+
+        ballCollisionHandler(ball_x, ball_y);
+        if (shouldMove){
+          ball_x++;
+          ball_y++;
+        }
+        window.setTimeout(mainLoop, 16);
+      }
+
+      function ballCollisionHandler(x, y){
+        if (x + ballSize > canvas.width){
+          // switch the ball to travel upwards instead of downwards
+          shouldMove = false;
+        } else if (x < 0){
+          // switch the ball to travel downwards instead of upwards
+          shouldMove = false;
+        } else if (y + ballSize > canvas.height){
+          // switch the ball to travel left instead of right
+          shouldMove = false;
+        } else if (y < 0){
+          // switch the ball to travel right instead of left
+          shouldMove = false;
+        }
+      }
+
+      function clearCanvas(){
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+      }
+
+      function drawStuff(){
+        clearCanvas();
 
         // player one's paddle
-        ctx.strokeRect(0,
+        draw_paddle(ctx,
+            0,
             totalHeight / 2,
             paddleWidth,
             paddleHeight);
 
         // player two's paddle
-        ctx.strokeRect(totalWidth - paddleWidth,
+        draw_paddle(ctx,
+            totalWidth - paddleWidth,
             totalHeight / 2,
             paddleWidth,
             paddleHeight);
 
-        // "ball"
-        ctx.strokeRect(totalWidth / 2,
-            totalHeight / 2,
-            ballSize,
-            ballSize);
+        draw_ball(ctx, ball_x, ball_y, ballSize);
       }
+
+      function draw_paddle(ctx, x, y, width, height){
+        ctx.strokeRect(x, y, width, height);
+      }
+
+      function draw_ball(ctx, x, y, size){
+        ctx.strokeRect(x, y, size, size);
+      }
+
     </script>
   <style>
     body {
