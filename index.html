@@ -31,6 +31,9 @@
       var p2_paddle_x = totalWidth - paddleWidth;
       var p2_paddle_y = totalHeight / 2;
 
+      var p1_score = 0;
+      var p2_score = 0;
+
       function init(){
         canvas = document.getElementById('mycanvas');
         ctx = canvas.getContext('2d');
@@ -58,11 +61,15 @@
 
       function ballCollisionHandler(x, y){
         if (x + ballSize > canvas.width){
-          // switch the ball to travel left instead of right
-          ball_x_velocity = -1;
+          // this means player 1 just scored!
+          ball_x = totalWidth / 2;
+          ball_y = totalHeight / 2;
+          p1_score++;
         } else if (x < 0){
-          // switch the ball to travel right instead of left
-          ball_x_velocity = 1;
+          // this means player 2 just scored!
+          ball_x = totalWidth / 2;
+          ball_y = totalHeight / 2;
+          p2_score++;
         } else if (y + ballSize > canvas.height){
           // switch the ball to travel upwards instead of downwards
           ball_y_velocity = -1;
@@ -89,6 +96,10 @@
 
       function drawStuff(){
         clearCanvas();
+
+        ctx.font="30px Verdana";
+        ctx.fillText(p1_score, totalWidth / 2 - 50, 50);
+        ctx.fillText(p2_score, totalWidth / 2 + 50, 50);
 
         // player one's paddle
         draw_paddle(ctx,
