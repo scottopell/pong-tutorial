@@ -254,13 +254,13 @@ So given some point `x,y` as the coordinate, we can write a function that looks 
 ```js
 function ballCollisionHandler(x, y){
   if (x > canvas.width){
-    // switch the ball to travel upwards instead of downwards
+      // switch the ball to travel left instead of right
   } else if (x < 0){
-    // switch the ball to travel downwards instead of upwards
+      // switch the ball to travel right instead of left
   } else if (y > canvas.height){
-    // switch the ball to travel left instead of right
+    // switch the ball to travel upwards instead of downwards
   } else if (y < 0){
-    // switch the ball to travel right instead of left
+    // switch the ball to travel downwards instead of upwards
   }
 }
 ```
@@ -273,13 +273,13 @@ So lets take that into account, its not hard!
 ```js
 function ballCollisionHandler(x, y){
   if (x + ballSize > canvas.width){
-    // switch the ball to travel upwards instead of downwards
+      // switch the ball to travel left instead of right
   } else if (x < 0){
-    // switch the ball to travel downwards instead of upwards
+      // switch the ball to travel right instead of left
   } else if (y + ballSize > canvas.height){
-    // switch the ball to travel left instead of right
+    // switch the ball to travel upwards instead of downwards
   } else if (y < 0){
-    // switch the ball to travel right instead of left
+    // switch the ball to travel downwards instead of upwards
   }
 }
 ```
@@ -292,6 +292,92 @@ That looks better. Now we can add in some code that will tell the ball what to d
 Awesome! For the next stage, we'll talk about how to make the ball "bounce" off the edges!
 
 Code for this stage found [here!](https://github.com/scottopell/pong-tutorial/blob/291940878184849fcb6cfb25f13c9dd40adb2538/index.html#L33)
+
+
+## Step 8: Bouncing Around
+So in the last step, we got it so that we know when the ball hits an edge. Now we need to figure out how to make it bounce off the edges like you'd expect!
+
+So, conceptually, what we're currently doing is adding 1 to the position of the ball every time our loop runs (which is about 30 times per second.)
+
+Now, the way canvas' numbering system works, at the very top right is the point (0,0), which explains why adding 1 to each x and y makes it go down and to the right.
+
+![coordinate-plane](./ss/coordinate-grid.gif)
+
+So now, we can see that if we want to make the ball go up and to the left, we should do
+
+```js
+ball_x = ball_x - 1;
+ball_y = ball_y - 1;
+```
+
+Lets test out this theory and modify our core loop to do this:
+
+```js
+function mainLoop(){
+  drawStuff();
+
+  ball_x = ball_x - 1;
+  ball_y = ball_y - 1;
+  window.setTimeout(mainLoop, 16);
+}
+```
+
+And when we run it, we see exactly what expect!
+
+So, given this information, we can fill in the comments that we put in `ballCollisionHandler` earlier!
+
+```js
+function ballCollisionHandler(x, y){
+  if (x + ballSize > canvas.width){
+    // switch the ball to travel left instead of right
+    ball_x_velocity = -1;
+  } else if (x < 0){
+    // switch the ball to travel right instead of left
+    ball_x_velocity = 1;
+  } else if (y + ballSize > canvas.height){
+    // switch the ball to travel upwards instead of downwards
+    ball_y_velocity = -1;
+  } else if (y < 0){
+    // switch the ball to travel downwards instead of upwards
+    ball_y_velocity = 1;
+  }
+}
+```
+
+And `ball_x_velocity` and `ball_y_velocity` are used in our main loop like this:
+
+```js
+function mainLoop(){
+  drawStuff();
+
+  ballCollisionHandler(ball_x, ball_y);
+  ball_x += ball_x_velocity;
+  ball_y += ball_y_velocity;
+  window.setTimeout(mainLoop, 16);
+}
+```
+
+(Make sure to define these where we define the other ones too!)
+
+Now, lets test out this version and make sure it works.
+
+![ball_bounce](./ss/pong_ball_bounce_around.gif)
+
+It works!!
+
+If you noticed, it currently doesn't collide with the paddles, because we didn't define what that would look like in `ballCollisionHandler`.
+
+In the next steps, we'll be adding in the ability to move each paddle and make the ball bounce off of this too!
+
+Code for this section found [here!](https://github.com/scottopell/pong-tutorial/blob/c2bca26db6eaad46193907880bb6d0e9e62de5e3/index.html#L34)
+
+
+
+
+
+
+
+
 
 
 
