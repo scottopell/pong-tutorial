@@ -372,13 +372,252 @@ In the next steps, we'll be adding in the ability to move each paddle and make t
 Code for this section found [here!](https://github.com/scottopell/pong-tutorial/blob/c2bca26db6eaad46193907880bb6d0e9e62de5e3/index.html#L34)
 
 
+## Step 9: Controlling Paddles
+In order to control the paddles, we're going to basically add a "handler" for the "keydown" event. This means that whenever a key get pressed on the keyboard, we can run some custom code!
+
+The basic idea here is this
+
+```js
+window.addEventListener('keydown', function(e){
+    if (e.keyCode == NUMBER_FOR_DOWN_ARROW){
+        // move paddle down
+    } else if (e.keyCode == NUMBER_FOR_UP_ARROW){
+        // move paddle up
+    }
+});
+```
+
+In that code, you'll notice the constants `NUMBER_FOR_DOWN_ARROW` and `NUMBER_FOR_UP_ARROW`. We don't really need to care about these, they're just arbitrary numbers that the browser uses to distinguish keys.
+
+[Keycode.info](http://keycode.info) is a great site to determine what these are if you ever need to know.
+
+In our case, the down and up keys have the codes 40 and 38 respectively.
+
+Now, in order to get the paddle to actually move, we need to modify the `drawStuff` function we wrote earlier.
+
+Here's the original one:
+
+```js
+function drawStuff(){
+  clearCanvas();
+
+  // player one's paddle
+  draw_paddle(ctx,
+      0,
+      totalHeight / 2,
+      paddleWidth,
+      paddleHeight);
+
+  // player two's paddle
+  draw_paddle(ctx,
+      totalWidth - paddleWidth,
+      totalHeight / 2,
+      paddleWidth,
+      paddleHeight);
+
+  draw_ball(ctx, ball_x, ball_y, ballSize);
+}
+```
+
+Specifically, instead of setting the `x` and `y` values to the same place on the canvas every time, we want those to be able to change.
+
+So lets make some variables so that we can control that.
+
+We'll first initialize these up at the top where we put everything else:
+
+```js
+var p1_paddle_x = 0;
+var p1_paddle_y = totalHeight / 2;
+var p2_paddle_x = totalWidth - paddleWidth;
+var p2_paddle_y = totalHeight / 2;
+```
+
+And then we'll modify `drawStuff` to reflect these changes.
+
+```js
+function drawStuff(){
+  clearCanvas();
+
+  // player one's paddle
+  draw_paddle(ctx,
+      p1_paddle_x,
+      p1_paddle_y,
+      paddleWidth,
+      paddleHeight);
+
+  // player two's paddle
+  draw_paddle(ctx,
+      p2_paddle_x,
+      p2_paddle_y,
+      paddleWidth,
+      paddleHeight);
+
+  draw_ball(ctx, ball_x, ball_y, ballSize);
+}
+```
+
+Now you should refresh and make sure that the paddles still get drawn in the expected location.
+
+Now for the fun part!
+
+Where we put comments in earlier to move the paddle, we can now change the variables we just made!
+
+```js
+window.addEventListener('keydown', function(e){
+  if (e.keyCode == NUMBER_FOR_DOWN_ARROW){
+    p1_paddle_y += 5;
+    p2_paddle_y += 5;
+  } else if (e.keyCode == NUMBER_FOR_UP_ARROW){
+    p1_paddle_y -= 5;
+    p2_paddle_y -= 5;
+  }
+});
+```
+
+For me, just adding or subtracting `1` from the position was too slow, so I add or subtract `5` so that it moves quicker!
+
+Now if we refresh and play with it, we'll see the paddle moving!
+
+![pong-ball-paddle-move](./ss/pong_ball_paddle_move.gif)
+
+(You won't see the arrows that show up on that gif, that's a program I use that shows what keys you're pressing)
+
+As you can see, when I hit the up arrow, the paddle moves up, and vice versa!
+
+The last thing to do in this step is adding in the paddle locations for the collision check.
+
+As a recap, here's the current code that's in `ballCollisionHandler`:
+
+```js
+function ballCollisionHandler(x, y){
+  if (x + ballSize > canvas.width){
+    // switch the ball to travel left instead of right
+    ball_x_velocity = -1;
+  } else if (x < 0){
+    // switch the ball to travel right instead of left
+    ball_x_velocity = 1;
+  } else if (y + ballSize > canvas.height){
+    // switch the ball to travel upwards instead of downwards
+    ball_y_velocity = -1;
+  } else if (y < 0){
+    // switch the ball to travel downwards instead of upwards
+    ball_y_velocity = 1;
+  }
+}
+```
+
+So, we basically need a separate `if` construct that checks the x and y of the ball with `p1_paddle_x` etc.
+
+This gets a bit messy, so feel free to just copy my version.
+
+```js
+function ballCollisionHandler(x, y){
+  if (x + ballSize > canvas.width){
+    // switch the ball to travel left instead of right
+    ball_x_velocity = -1;
+  } else if (x < 0){
+    // switch the ball to travel right instead of left
+    ball_x_velocity = 1;
+  } else if (y + ballSize > canvas.height){
+    // switch the ball to travel upwards instead of downwards
+    ball_y_velocity = -1;
+  } else if (y < 0){
+    // switch the ball to travel downwards instead of upwards
+    ball_y_velocity = 1;
+  }
+
+  // Additions for handling paddle collisions!
+  if (x < paddleWidth
+      && y + ballSize >= p1_paddle_y
+      && y <= p1_paddle_y + paddleHeight){
+    ball_x_velocity = 1;
+  } else if (x + ballSize > totalWidth - ballSize
+      && y + ballSize >= p2_paddle_y
+      && y <= p1_paddle_y + paddleHeight){
+    ball_x_velocity = -1;
+  }
+}
+```
 
 
+Now, if we run this version, then we see something like this:
+
+![pong-paddle-collision](./ss/pong_paddle_collision.gif)
+
+As you probably noticed, I made the up and down arrows control both paddles instead of only the left one.
+
+Complete code for this version can be found [here!](https://github.com/scottopell/pong-tutorial/blob/92c1d17b8ced4d1706025afe98df7d1fa3824058/index.html#L34)
+
+## Step 10: Final Steps
+That last version added almost everything we need, but there are a few things missing.
+
+- The ball shouldn't bounce off the left and right, but rather that should be a scored point and it should go back to the middle.
+- The score should be displayed somewhere.
+
+And that's basically it! So lets get started.
+
+First, lets modify our collision checking code to move the ball back to the middle instead of just bouncing it.
 
 
+```js
+function ballCollisionHandler(x, y){
+  if (x + ballSize > canvas.width){
+    // this means player 1 just scored!
+    ball_x = totalWidth / 2;
+    ball_y = totalHeight / 2;
+    p1_score++;
+  } else if (x < 0){
+    // this means player 2 just scored!
+    ball_x = totalWidth / 2;
+    ball_y = totalHeight / 2;
+    p2_score++;
+  } else if (y + ballSize > canvas.height){
+    // switch the ball to travel upwards instead of downwards
+    ball_y_velocity = -1;
+  } else if (y < 0){
+    // switch the ball to travel downwards instead of upwards
+    ball_y_velocity = 1;
+  }
+
+  // if the ball is in the left
+  if (x < paddleWidth
+      && y + ballSize >= p1_paddle_y
+      && y <= p1_paddle_y + paddleHeight){
+    ball_x_velocity = 1;
+  } else if (x + ballSize > totalWidth - ballSize
+      && y + ballSize >= p2_paddle_y
+      && y <= p1_paddle_y + paddleHeight){
+    ball_x_velocity = -1;
+  }
+}
+```
+
+This modification just resets the position of the ball and increments a `score` variable if it goes off the left or right side of the canvas.
+
+Now that we know the score, we can use the canvas function `fillText` to write text out to the screen!
+
+If we just add this in `drawStuff` right below `clearCanvas`, then we should see the scores for player one and player two drawn at the top of the screen!
+
+```js
+ctx.font="30px Verdana";
+ctx.fillText(p1_score, totalWidth / 2 - 50, 50);
+ctx.fillText(p2_score, totalWidth / 2 + 50, 50);
+```
 
 
+![pong-score-keeping](./ss/pong_score_count.gif)
 
 
+Complete code for this step can be found [here!](https://github.com/scottopell/pong-tutorial/blob/46fa14caf9f850a1f3e044ba974316596116e276/index.html#L37)
 
+## Future Work
 
+So that's the basics of how to make pong with HTML5's canvas functionality.
+
+There are plenty of cool additions you could add in the future. 
+
+- Add separate keys for the second player so you can have two players play against each other
+- Play with the speed, how could you make everything move faster? (Hint: instead of running our code every 16ms, which corresponds to 30 times a second, you could run it every 8 seconds, which would be 60 times a second)
+- Make the second player a computer! How would you configure the second paddle to move on its own to the correct place? (Hint: this one involves doing some geometry to figure out where the ball will hit, and then moving the paddle to that location)
+
+This version of pong is much simpler to understand, but I have another version I wrote that has some of these features, here's the code for the "computer player" part of it. [Code](https://github.com/scottopell/pong/blob/gh-pages/js/pong/main.js#L212)
