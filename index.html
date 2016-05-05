@@ -11,6 +11,8 @@
       // 'init', which we define below.
       window.addEventListener('load', init, false);
 
+      var NUMBER_FOR_UP_ARROW = 38;
+      var NUMBER_FOR_DOWN_ARROW = 40;
       var canvas, ctx;
 
       var paddleWidth = 30;
@@ -24,11 +26,25 @@
       var ball_x_velocity = 1;
       var ball_y_velocity = 1;
 
+      var p1_paddle_x = 0;
+      var p1_paddle_y = totalHeight / 2;
+      var p2_paddle_x = totalWidth - paddleWidth;
+      var p2_paddle_y = totalHeight / 2;
+
       function init(){
         canvas = document.getElementById('mycanvas');
         ctx = canvas.getContext('2d');
 
         window.setTimeout(mainLoop, 16);
+        window.addEventListener('keydown', function(e){
+          if (e.keyCode == NUMBER_FOR_DOWN_ARROW){
+            p1_paddle_y += 5;
+            p2_paddle_y += 5;
+          } else if (e.keyCode == NUMBER_FOR_UP_ARROW){
+            p1_paddle_y -= 5;
+            p2_paddle_y -= 5;
+          }
+        });
       }
 
       function mainLoop(){
@@ -54,6 +70,17 @@
           // switch the ball to travel downwards instead of upwards
           ball_y_velocity = 1;
         }
+
+        // if the ball is in the left
+        if (x < paddleWidth
+            && y + ballSize >= p1_paddle_y
+            && y <= p1_paddle_y + paddleHeight){
+          ball_x_velocity = 1;
+        } else if (x + ballSize > totalWidth - ballSize
+            && y + ballSize >= p2_paddle_y
+            && y <= p1_paddle_y + paddleHeight){
+          ball_x_velocity = -1;
+        }
       }
 
       function clearCanvas(){
@@ -65,15 +92,15 @@
 
         // player one's paddle
         draw_paddle(ctx,
-            0,
-            totalHeight / 2,
+            p1_paddle_x,
+            p1_paddle_y,
             paddleWidth,
             paddleHeight);
 
         // player two's paddle
         draw_paddle(ctx,
-            totalWidth - paddleWidth,
-            totalHeight / 2,
+            p2_paddle_x,
+            p2_paddle_y,
             paddleWidth,
             paddleHeight);
 
